@@ -14,6 +14,7 @@
     "inbox": "^1.1.59",
     "mailparser": "^2.4.3",
     "mongoose": "^5.4.11",
+    "node-tweet-stream": "^2.0.3",
     "socket.io": "^2.2.0"
   }
 }

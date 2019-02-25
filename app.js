@@ -5,6 +5,7 @@ const axios = require('axios')
 const app = require('express')();
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
+const Twitter = require('node-tweet-stream')
 
 // Local Dependecies
 const Email = require('./models/emails')
@@ -14,11 +15,37 @@ const fs = require('fs')
 
 server.listen(80)
 
+var twitter = new Twitter({
+  consumer_key: 'BoDKWzyGkxBHHWVDkZQNt8l3C',
+  consumer_secret: 'GwNXciayGWRc2paA5IkwMJyMoXPgioW7WUss8svJRjGvNMQVIP',
+  token: '2334151503-pt38pMqJlEUWsAq73lJtn5XNMrUEg6QKTNQnjEv',
+  token_secret: 'GOeB9qPnugYombcgulxgJw2yrbsyUeH071LtD9mARykrZ'
+})
+
+twitter.on('tweet', function(tweet){
+  var screenTweet = {
+    text: tweet.text,
+    screenName: tweet.user.screen_name,
+    picture: tweet.user.profile_image_url
+  }
+  incomingmail.emit('newtweet', screenTweet)
+})
+
+twitter.on('error', function(err){
+  incomingmail.emit('error', {
+    error: 'An Error Occured with the connection to the twitter API'
+  })
+})
+
 var incomingmail = io
   .of('/incomingmail')
   .on('connection', (socket) => {
     socket.emit('initialised', {
       message: 'Connection Established'
+    })
+
+    socket.on('trackthis', (data) => {
+      twitter.track(data.tweetString)    
     })
   })
 
@@ -69,3 +96,5 @@ client.on('new', (message) => {
     })
   })
 })
+
+console.log('eof')
