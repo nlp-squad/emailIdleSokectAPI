@@ -22,13 +22,16 @@ var twitter = new Twitter({
   token_secret: 'GOeB9qPnugYombcgulxgJw2yrbsyUeH071LtD9mARykrZ'
 })
 
-twitter.on('tweet', function(tweet){
+twitter.on('tweet', async function(tweet){
   var screenTweet = {
     text: tweet.text,
     screenName: tweet.user.screen_name,
     picture: tweet.user.profile_image_url
   }
-  incomingmail.emit('newtweet', screenTweet)
+  await axios.post('http://127.0.0.1:4000/setsentiment', screenTweet).then((response) => {
+    screenTweet = response.data
+    incomingmail.emit('newtweet', screenTweet)
+  })
 })
 
 twitter.on('error', function(err){
@@ -96,5 +99,3 @@ client.on('new', (message) => {
     })
   })
 })
-
-console.log('eof')
